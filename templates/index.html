@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>GabAI</title>
+</head>
+<body>
+    <div id="chat-container">
+        <div id="conversation"></div>
+        <div id="chat-box"></div>
+        <input type="text" id="user-input" placeholder="Message Gab..." autocomplete="off">
+        <button id="send-btn">Send</button>
+    </div>    
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chatBox = document.getElementById('chat-box');
+            const userInput = document.getElementById('user-input');
+            const sendBtn = document.getElementById('send-btn');
+    
+            sendBtn.addEventListener('click', function () {
+                const userMessage = userInput.value.trim();
+                if (userMessage !== '') {
+                    appendMessage('Leonard', userMessage, 'user');
+                    userInput.value = '';
+    
+                    // Send user message to the server
+                    fetch('/get_response', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `user_message=${userMessage}`,
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        appendMessage('Gab', data.response, 'bot');  // Corrected class name 'bot'
+                    });
+                }
+            });
+    
+            function appendMessage(sender, message, senderClass) {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${senderClass}`;
+                messageDiv.innerText = `${sender}: ${message}`;
+                chatBox.appendChild(messageDiv);
+            }
+        });
+    </script>
+</body>
+</html>
